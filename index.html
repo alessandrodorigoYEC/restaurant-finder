@@ -79,6 +79,17 @@
             gap: 5px;
         }
 
+        #priceOrder {
+            width: 150px;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+            background-color: var(--input-background);
+            color: var(--text-color);
+        }
+
         #orderByPrice {
             -webkit-appearance: none;
             appearance: none;
@@ -187,8 +198,11 @@
                 <option value="pizza">Pizza</option>
             </select>
             <div class="price-order">
-                <input type="checkbox" id="orderByPrice">
-                <label for="orderByPrice">Order by Price</label>
+                <select id="priceOrder">
+                    <option value="">No price order</option>
+                    <option value="asc">Price: Low to High</option>
+                    <option value="desc">Price: High to Low</option>
+                </select>
             </div>
             <button id="searchButton">Search</button>
         </div>
@@ -297,7 +311,7 @@
         function searchRestaurants() {
             const location = document.getElementById("locationInput").value;
             const category = document.getElementById("categorySelect").value;
-            const orderByPrice = document.getElementById("orderByPrice").checked;
+            const priceOrder = document.getElementById("priceOrder").value;
 
             const geocoder = new google.maps.Geocoder();
 
@@ -327,21 +341,24 @@
                         radius: '500',
                         type: ['restaurant']
                     };
-                    service.nearbySearch(request, (results, status) => callback(results, status, orderByPrice));
+                    service.nearbySearch(request, (results, status) => callback(results, status, priceOrder));
                 } else {
                     alert("Geocode was not successful for the following reason: " + status);
                 }
             });
         }
 
-        function callback(results, status, orderByPrice) {
+        function callback(results, status, priceOrder) {
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 const resultsContainer = document.getElementById("results");
                 resultsContainer.innerHTML = "";
 
-                //console.log(results);
-                if (orderByPrice) {
-                    results.sort((a, b) => (a.price_level || 0) - (b.price_level || 0));
+                if (priceOrder) {
+                    results.sort((a, b) => {
+                        const priceA = a.price_level || 0;
+                        const priceB = b.price_level || 0;
+                        return priceOrder === 'asc' ? priceA - priceB : priceB - priceA;
+                    });
                 }
 
                 for (let i = 0; i < results.length; i++) {
