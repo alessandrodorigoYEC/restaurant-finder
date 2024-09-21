@@ -43,15 +43,18 @@
         .search-container {
             display: flex;
             justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
-        #locationInput {
-            width: 300px;
+        #locationInput, #categorySelect {
+            width: 200px;
             padding: 12px;
             font-size: 16px;
             border: none;
-            border-radius: 25px 0 0 25px;
+            border-radius: 25px;
             outline: none;
         }
 
@@ -61,13 +64,19 @@
             background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 0 25px 25px 0;
+            border-radius: 25px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
         #searchButton:hover {
             background-color: var(--secondary-color);
+        }
+
+        .price-order {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         #map {
@@ -140,6 +149,17 @@
         <div class="logo">Restaurant<span>Finder</span></div>
         <div class="search-container">
             <input type="text" id="locationInput" placeholder="Enter a location">
+            <select id="categorySelect">
+                <option value="restaurant">All Restaurants</option>
+                <option value="cafe">Cafes</option>
+                <option value="bar">Bars</option>
+                <option value="fast_food">Fast Food</option>
+                <option value="pizza">Pizza</option>
+            </select>
+            <div class="price-order">
+                <input type="checkbox" id="orderByPrice">
+                <label for="orderByPrice">Order by Price</label>
+            </div>
             <button id="searchButton">Search</button>
         </div>
         <div id="map"></div>
@@ -257,6 +277,9 @@
 
         function searchRestaurants() {
             const location = document.getElementById("locationInput").value;
+            const category = document.getElementById("categorySelect").value;
+            const orderByPrice = document.getElementById("orderByPrice").checked;
+
             const geocoder = new google.maps.Geocoder();
 
             geocoder.geocode({ address: location }, (results, status) => {
@@ -265,19 +288,24 @@
                     const request = {
                         location: results[0].geometry.location,
                         radius: '500',
-                        type: ['restaurant']
+                        type: [category]
                     };
-                    service.nearbySearch(request, callback);
+                    service.nearbySearch(request, (results, status) => callback(results, status, orderByPrice));
                 } else {
                     alert("Geocode was not successful for the following reason: " + status);
                 }
             });
         }
 
-        function callback(results, status) {
+        function callback(results, status, orderByPrice) {
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 const resultsContainer = document.getElementById("results");
                 resultsContainer.innerHTML = "";
+
+                if (orderByPrice) {
+                    results.sort((a, b) => (a.price_level || 0) - (b.price_level || 0));
+                }
+
                 for (let i = 0; i < results.length; i++) {
                     createRestaurantCard(results[i]);
                 }
@@ -299,6 +327,12 @@
             const address = document.createElement("p");
             address.textContent = place.vicinity;
             card.appendChild(address);
+
+            if (place.price_level !== undefined) {
+                const price = document.createElement("p");
+                price.textContent = "Price: " + "$".repeat(place.price_level);
+                card.appendChild(price);
+            }
 
             const directionsButton = document.createElement("button");
             directionsButton.className = "directions-button";
