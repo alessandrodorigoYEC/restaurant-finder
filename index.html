@@ -306,7 +306,7 @@
                     const request = {
                         location: results[0].geometry.location,
                         radius: '500',
-                        type: [category]
+                        type: ['restaurant']
                     };
                     service.nearbySearch(request, (results, status) => callback(results, status, orderByPrice));
                 } else {
