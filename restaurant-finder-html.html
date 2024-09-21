@@ -102,6 +102,8 @@
                 const restaurantsResponse = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+${encodeURIComponent(city)}&type=restaurant&key=${GOOGLE_API_KEY}`);
                 const restaurantsData = await restaurantsResponse.json();
 
+                console.log(restaurantsData);
+
                 if (restaurantsData.status !== 'OK') {
                     throw new Error('Failed to fetch restaurants');
                 }
