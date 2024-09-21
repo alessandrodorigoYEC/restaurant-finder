@@ -320,6 +320,7 @@
                 const resultsContainer = document.getElementById("results");
                 resultsContainer.innerHTML = "";
 
+                console.log(results);
                 if (orderByPrice) {
                     results.sort((a, b) => (a.price_level || 0) - (b.price_level || 0));
                 }
