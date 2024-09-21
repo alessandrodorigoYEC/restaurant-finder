@@ -74,9 +74,6 @@
 
         searchButton.addEventListener('click', searchRestaurants);
 
-        // Add this constant at the top of your script
-        const GOOGLE_API_KEY = 'AIzaSyC3jRfkNCu06fxqbBFAQml91G-rhI_0iPc';
-
         async function searchRestaurants() {
             const city = cityInput.value.trim();
             if (!city) {
@@ -88,30 +85,18 @@
             clearResults();
 
             try {
-                // First, get the place ID for the city
-                const cityResponse = await fetch(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(city)}&inputtype=textquery&fields=place_id&key=${GOOGLE_API_KEY}`);
-                const cityData = await cityResponse.json();
+                // Call the serverless function instead of directly accessing the Google API
+                const response = await fetch(`/api/search?city=${encodeURIComponent(city)}`);
+                const data = await response.json();
 
-                if (!cityData.candidates || cityData.candidates.length === 0) {
-                    throw new Error('City not found');
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to fetch restaurants');
                 }
 
-                const cityPlaceId = cityData.candidates[0].place_id;
-
-                // Now, search for restaurants in the city
-                const restaurantsResponse = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+in+${encodeURIComponent(city)}&type=restaurant&key=${GOOGLE_API_KEY}`);
-                const restaurantsData = await restaurantsResponse.json();
-
-                console.log(restaurantsData);
-
-                if (restaurantsData.status !== 'OK') {
-                    throw new Error('Failed to fetch restaurants');
-                }
-
-                if (restaurantsData.results.length === 0) {
+                if (data.results.length === 0) {
                     showError('No restaurants found in this city.');
                 } else {
-                    displayRestaurants(restaurantsData.results);
+                    displayRestaurants(data.results);
                 }
             } catch (error) {
                 showError('An error occurred while fetching restaurants. Please try again.');
