@@ -200,6 +200,7 @@
         let map;
         let service;
         let infowindow;
+        let centerMarker; // New variable to store the center marker
 
         function initMap() {
             const defaultLocation = { lat: 40.7128, lng: -74.0060 };
@@ -302,9 +303,27 @@
 
             geocoder.geocode({ address: location }, (results, status) => {
                 if (status === "OK") {
-                    map.setCenter(results[0].geometry.location);
+                    const center = results[0].geometry.location;
+                    map.setCenter(center);
+
+                    // Remove previous center marker if it exists
+                    if (centerMarker) {
+                        centerMarker.setMap(null);
+                    }
+
+                    // Add a new marker at the center
+                    centerMarker = new google.maps.Marker({
+                        position: center,
+                        map: map,
+                        title: "Searched Location",
+                        icon: {
+                            url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                            scaledSize: new google.maps.Size(40, 40)
+                        }
+                    });
+
                     const request = {
-                        location: results[0].geometry.location,
+                        location: center,
                         radius: '500',
                         type: ['restaurant']
                     };
@@ -320,7 +339,7 @@
                 const resultsContainer = document.getElementById("results");
                 resultsContainer.innerHTML = "";
 
-                console.log(results);
+                //console.log(results);
                 if (orderByPrice) {
                     results.sort((a, b) => (a.price_level || 0) - (b.price_level || 0));
                 }
