@@ -3,135 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>City Restaurant Finder</title>
+    <title>Restaurant Finder</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
+        :root {
+            --primary-color: #4a4e69;
+            --secondary-color: #9a8c98;
+            --background-color: #f2e9e4;
+            --text-color: #22223b;
+            --card-background: #ffffff;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        h1 {
-            color: #2c3e50;
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
         }
-        #search-container {
+
+        .logo span {
+            color: var(--secondary-color);
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
             margin-bottom: 20px;
         }
-        #city-input {
-            padding: 10px;
+
+        #locationInput {
+            width: 300px;
+            padding: 12px;
             font-size: 16px;
-            width: 60%;
+            border: none;
+            border-radius: 25px 0 0 25px;
+            outline: none;
         }
-        #search-button {
-            padding: 10px 20px;
+
+        #searchButton {
+            padding: 12px 20px;
             font-size: 16px;
-            background-color: #3498db;
+            background-color: var(--primary-color);
             color: white;
             border: none;
+            border-radius: 0 25px 25px 0;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        #search-button:hover {
-            background-color: #2980b9;
+
+        #searchButton:hover {
+            background-color: var(--secondary-color);
         }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
         #results {
-            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
         }
+
         .restaurant-card {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
+            background-color: var(--card-background);
+            border-radius: 10px;
             padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .restaurant-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
             margin-bottom: 10px;
-            border-radius: 5px;
         }
-        .restaurant-name {
-            font-weight: bold;
-            color: #2c3e50;
+
+        .restaurant-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
         }
-        #loading, #error {
-            margin-top: 20px;
-            font-style: italic;
+
+        .restaurant-card p {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .directions-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .directions-button:hover {
+            background-color: var(--secondary-color);
         }
     </style>
 </head>
 <body>
-    <h1>City Restaurant Finder</h1>
-    <div id="search-container">
-        <input type="text" id="city-input" placeholder="Enter a city name">
-        <button id="search-button">Search</button>
+    <div class="container">
+        <div class="logo">Restaurant<span>Finder</span></div>
+        <div class="search-container">
+            <input type="text" id="locationInput" placeholder="Enter a location">
+            <button id="searchButton">Search</button>
+        </div>
+        <div id="map"></div>
+        <div id="results"></div>
     </div>
-    <div id="loading" style="display: none;">Searching for restaurants...</div>
-    <div id="error" style="display: none; color: red;"></div>
-    <div id="results"></div>
 
     <script>
-        const cityInput = document.getElementById('city-input');
-        const searchButton = document.getElementById('search-button');
-        const loadingDiv = document.getElementById('loading');
-        const errorDiv = document.getElementById('error');
-        const resultsDiv = document.getElementById('results');
+        let map;
+        let service;
+        let infowindow;
 
-        searchButton.addEventListener('click', searchRestaurants);
+        function initMap() {
+            const defaultLocation = { lat: 40.7128, lng: -74.0060 };
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: defaultLocation,
+                zoom: 15,
+                styles: [
+                    {
+                        "featureType": "all",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"weight": "2.00"}]
+                    },
+                    {
+                        "featureType": "all",
+                        "elementType": "geometry.stroke",
+                        "stylers": [{"color": "#9c9c9c"}]
+                    },
+                    {
+                        "featureType": "all",
+                        "elementType": "labels.text",
+                        "stylers": [{"visibility": "on"}]
+                    },
+                    {
+                        "featureType": "landscape",
+                        "elementType": "all",
+                        "stylers": [{"color": "#f2f2f2"}]
+                    },
+                    {
+                        "featureType": "landscape",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "landscape.man_made",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "all",
+                        "stylers": [{"saturation": -100},{"lightness": 45}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#eeeeee"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#7b7b7b"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#ffffff"}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "simplified"}]
+                    },
+                    {
+                        "featureType": "road.arterial",
+                        "elementType": "labels.icon",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "transit",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "all",
+                        "stylers": [{"color": "#46bcec"},{"visibility": "on"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#c8d7d4"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#070707"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#ffffff"}]
+                    }
+                ]
+            });
+            infowindow = new google.maps.InfoWindow();
+            service = new google.maps.places.PlacesService(map);
 
-        async function searchRestaurants() {
-            const city = cityInput.value.trim();
-            if (!city) {
-                showError('Please enter a city name.');
-                return;
-            }
-
-            showLoading(true);
-            clearResults();
-
-            try {
-                // Call the serverless function instead of directly accessing the Google API
-                const response = await fetch(`/api/search?city=${encodeURIComponent(city)}`);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to fetch restaurants');
-                }
-
-                if (data.results.length === 0) {
-                    showError('No restaurants found in this city.');
-                } else {
-                    displayRestaurants(data.results);
-                }
-            } catch (error) {
-                showError('An error occurred while fetching restaurants. Please try again.');
-                console.error('Error:', error);
-            } finally {
-                showLoading(false);
-            }
+            document.getElementById("searchButton").addEventListener("click", searchRestaurants);
         }
 
-        function displayRestaurants(restaurants) {
-            restaurants.forEach(restaurant => {
-                const card = document.createElement('div');
-                card.className = 'restaurant-card';
-                card.innerHTML = `
-                    <div class="restaurant-name">${restaurant.name}</div>
-                    <div>Rating: ${restaurant.rating ? `${restaurant.rating} / 5` : 'Not rated'}</div>
-                    <div>Address: ${restaurant.formatted_address || 'Address not available'}</div>
-                `;
-                resultsDiv.appendChild(card);
+        function searchRestaurants() {
+            const location = document.getElementById("locationInput").value;
+            const geocoder = new google.maps.Geocoder();
+
+            geocoder.geocode({ address: location }, (results, status) => {
+                if (status === "OK") {
+                    map.setCenter(results[0].geometry.location);
+                    const request = {
+                        location: results[0].geometry.location,
+                        radius: '500',
+                        type: ['restaurant']
+                    };
+                    service.nearbySearch(request, callback);
+                } else {
+                    alert("Geocode was not successful for the following reason: " + status);
+                }
             });
         }
 
-        function showLoading(isLoading) {
-            loadingDiv.style.display = isLoading ? 'block' : 'none';
+        function callback(results, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                const resultsContainer = document.getElementById("results");
+                resultsContainer.innerHTML = "";
+                for (let i = 0; i < results.length; i++) {
+                    createRestaurantCard(results[i]);
+                }
+            }
         }
 
-        function showError(message) {
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
+        function createRestaurantCard(place) {
+            const card = document.createElement("div");
+            card.className = "restaurant-card";
 
-        function clearResults() {
-            resultsDiv.innerHTML = '';
-            errorDiv.style.display = 'none';
+            const image = document.createElement("img");
+            image.src = place.photos ? place.photos[0].getUrl() : "https://via.placeholder.com/300x200?text=No+Image";
+            card.appendChild(image);
+
+            const name = document.createElement("h3");
+            name.textContent = place.name;
+            card.appendChild(name);
+
+            const address = document.createElement("p");
+            address.textContent = place.vicinity;
+            card.appendChild(address);
+
+            const directionsButton = document.createElement("button");
+            directionsButton.className = "directions-button";
+            directionsButton.textContent = "Get Directions";
+            directionsButton.onclick = () => {
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${place.name},${place.vicinity}`);
+            };
+            card.appendChild(directionsButton);
+
+            document.getElementById("results").appendChild(card);
         }
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
 </body>
 </html>
