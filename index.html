@@ -152,7 +152,16 @@
             font-size: 0.9rem;
         }
 
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .details-button,
         .directions-button {
+            flex: 1;
             background-color: var(--accent-color);
             color: var(--text-color);
             border: none;
@@ -161,12 +170,12 @@
             text-decoration: none;
             display: inline-block;
             font-size: 14px;
-            margin-top: 10px;
             cursor: pointer;
             border-radius: 10px;
             transition: background-color 0.3s ease;
         }
 
+        .details-button:hover,
         .directions-button:hover {
             opacity: 0.8;
         }
@@ -382,13 +391,27 @@
                 card.appendChild(price);
             }
 
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "button-container";
+
+            const seeDetailsButton = document.createElement("button");
+            seeDetailsButton.className = "details-button";
+            seeDetailsButton.textContent = "See Details";
+            seeDetailsButton.onclick = () => {
+                // Implement the details functionality here
+                alert(`Details for ${place.name}`);
+            };
+            buttonContainer.appendChild(seeDetailsButton);
+
             const directionsButton = document.createElement("button");
             directionsButton.className = "directions-button";
             directionsButton.textContent = "Get Directions";
             directionsButton.onclick = () => {
                 window.open(`https://www.google.com/maps/dir/?api=1&destination=${place.name},${place.vicinity}`);
             };
-            card.appendChild(directionsButton);
+            buttonContainer.appendChild(directionsButton);
+
+            card.appendChild(buttonContainer);
 
             document.getElementById("results").appendChild(card);
         }
