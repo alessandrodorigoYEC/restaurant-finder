@@ -192,9 +192,63 @@
                 max-width: 80%;
             }
         }
+
+        /* Add these new styles for the navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--card-background);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-logo {
+            height: 40px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-color);
+        }
+
+        .sign-up-btn {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sign-up-btn:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <img src="/logo.png" alt="RestaurantFinder Logo" class="navbar-logo">
+        <div class="navbar-nav">
+            <a href="#" class="nav-link">Home</a>
+            <a href="#" class="nav-link">Pricing</a>
+        </div>
+        <button class="sign-up-btn">Sign Up</button>
+    </nav>
+
     <div class="container">
         <img src="/logo.png" alt="RestaurantFinder Logo" class="logo-image">
         <div class="search-container">
