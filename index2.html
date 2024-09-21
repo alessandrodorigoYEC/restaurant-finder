@@ -7,17 +7,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
         :root {
-            --background-color: #000000;
-            --card-background: #1c1c1e;
-            --text-color: #ffffff;
-            --secondary-text-color: #8e8e93;
-            --accent-color: #0a84ff;
-            --border-color: #38383a;
-            --input-background: #2c2c2e;
+            --primary-color: #4a4e69;
+            --secondary-color: #9a8c98;
+            --background-color: #f2e9e4;
+            --text-color: #22223b;
+            --card-background: #ffffff;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--background-color);
@@ -32,10 +30,14 @@
 
         .logo {
             font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-color);
+            font-weight: bold;
+            color: var(--primary-color);
             margin-bottom: 20px;
             text-align: center;
+        }
+
+        .logo span {
+            color: var(--secondary-color);
         }
 
         .search-container {
@@ -52,25 +54,23 @@
             padding: 12px;
             font-size: 16px;
             border: none;
-            border-radius: 10px;
+            border-radius: 25px;
             outline: none;
-            background-color: var(--input-background);
-            color: var(--text-color);
         }
 
         #searchButton {
             padding: 12px 20px;
             font-size: 16px;
-            background-color: var(--accent-color);
-            color: var(--text-color);
+            background-color: var(--primary-color);
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 25px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
         #searchButton:hover {
-            opacity: 0.8;
+            background-color: var(--secondary-color);
         }
 
         .price-order {
@@ -79,27 +79,12 @@
             gap: 5px;
         }
 
-        #orderByPrice {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid var(--accent-color);
-            outline: none;
-            cursor: pointer;
-        }
-
-        #orderByPrice:checked {
-            background-color: var(--accent-color);
-        }
-
         #map {
             height: 400px;
             width: 100%;
             margin-bottom: 20px;
             border-radius: 10px;
-            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         #results {
@@ -131,19 +116,17 @@
 
         .restaurant-card h3 {
             margin: 0 0 10px 0;
-            color: var(--text-color);
-            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .restaurant-card p {
-            color: var(--secondary-text-color);
+            color: var(--secondary-color);
             margin-bottom: 10px;
-            font-size: 0.9rem;
         }
 
         .directions-button {
-            background-color: var(--accent-color);
-            color: var(--text-color);
+            background-color: var(--primary-color);
+            color: white;
             border: none;
             padding: 10px 20px;
             text-align: center;
@@ -152,18 +135,18 @@
             font-size: 14px;
             margin-top: 10px;
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 25px;
             transition: background-color 0.3s ease;
         }
 
         .directions-button:hover {
-            opacity: 0.8;
+            background-color: var(--secondary-color);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">RestaurantFinder</div>
+        <div class="logo">Restaurant<span>Finder</span></div>
         <div class="search-container">
             <input type="text" id="locationInput" placeholder="Enter a location">
             <select id="categorySelect">
@@ -194,85 +177,97 @@
                 center: defaultLocation,
                 zoom: 15,
                 styles: [
-                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
                     {
-                        featureType: "administrative.locality",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#d59563" }],
+                        "featureType": "all",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"weight": "2.00"}]
                     },
                     {
-                        featureType: "poi",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#d59563" }],
+                        "featureType": "all",
+                        "elementType": "geometry.stroke",
+                        "stylers": [{"color": "#9c9c9c"}]
                     },
                     {
-                        featureType: "poi.park",
-                        elementType: "geometry",
-                        stylers: [{ color: "#263c3f" }],
+                        "featureType": "all",
+                        "elementType": "labels.text",
+                        "stylers": [{"visibility": "on"}]
                     },
                     {
-                        featureType: "poi.park",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#6b9a76" }],
+                        "featureType": "landscape",
+                        "elementType": "all",
+                        "stylers": [{"color": "#f2f2f2"}]
                     },
                     {
-                        featureType: "road",
-                        elementType: "geometry",
-                        stylers: [{ color: "#38414e" }],
+                        "featureType": "landscape",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#ffffff"}]
                     },
                     {
-                        featureType: "road",
-                        elementType: "geometry.stroke",
-                        stylers: [{ color: "#212a37" }],
+                        "featureType": "landscape.man_made",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#ffffff"}]
                     },
                     {
-                        featureType: "road",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#9ca5b3" }],
+                        "featureType": "poi",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
                     },
                     {
-                        featureType: "road.highway",
-                        elementType: "geometry",
-                        stylers: [{ color: "#746855" }],
+                        "featureType": "road",
+                        "elementType": "all",
+                        "stylers": [{"saturation": -100},{"lightness": 45}]
                     },
                     {
-                        featureType: "road.highway",
-                        elementType: "geometry.stroke",
-                        stylers: [{ color: "#1f2835" }],
+                        "featureType": "road",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#eeeeee"}]
                     },
                     {
-                        featureType: "road.highway",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#f3d19c" }],
+                        "featureType": "road",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#7b7b7b"}]
                     },
                     {
-                        featureType: "transit",
-                        elementType: "geometry",
-                        stylers: [{ color: "#2f3948" }],
+                        "featureType": "road",
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#ffffff"}]
                     },
                     {
-                        featureType: "transit.station",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#d59563" }],
+                        "featureType": "road.highway",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "simplified"}]
                     },
                     {
-                        featureType: "water",
-                        elementType: "geometry",
-                        stylers: [{ color: "#17263c" }],
+                        "featureType": "road.arterial",
+                        "elementType": "labels.icon",
+                        "stylers": [{"visibility": "off"}]
                     },
                     {
-                        featureType: "water",
-                        elementType: "labels.text.fill",
-                        stylers: [{ color: "#515c6d" }],
+                        "featureType": "transit",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
                     },
                     {
-                        featureType: "water",
-                        elementType: "labels.text.stroke",
-                        stylers: [{ color: "#17263c" }],
+                        "featureType": "water",
+                        "elementType": "all",
+                        "stylers": [{"color": "#46bcec"},{"visibility": "on"}]
                     },
-                ],
+                    {
+                        "featureType": "water",
+                        "elementType": "geometry.fill",
+                        "stylers": [{"color": "#c8d7d4"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#070707"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "labels.text.stroke",
+                        "stylers": [{"color": "#ffffff"}]
+                    }
+                ]
             });
             infowindow = new google.maps.InfoWindow();
             service = new google.maps.places.PlacesService(map);
