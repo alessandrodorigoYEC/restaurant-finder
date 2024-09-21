@@ -398,8 +398,8 @@
             seeDetailsButton.className = "details-button";
             seeDetailsButton.textContent = "See Details";
             seeDetailsButton.onclick = () => {
-                // Implement the details functionality here
-                alert(`Details for ${place.name}`);
+                // Open the Google Maps page for the place
+                window.open(`https://www.google.com/maps/place/?q=place_id:${place.place_id}`);
             };
             buttonContainer.appendChild(seeDetailsButton);
 
