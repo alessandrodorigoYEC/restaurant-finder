@@ -335,7 +335,15 @@
             card.className = "restaurant-card";
 
             const image = document.createElement("img");
-            image.src = place.photos ? place.photos[0].getUrl() : "https://via.placeholder.com/300x200?text=No+Image";
+            if (place.photos && place.photos[0]) {
+                if (typeof place.photos[0].getUrl === "function") {
+                    image.src = place.photos[0].getUrl();
+                } else {
+                    image.src = place.photos[0];
+                }
+            } else {
+                image.src = "https://via.placeholder.com/300x200?text=No+Image";
+            }
             card.appendChild(image);
 
             const name = document.createElement("h3");
