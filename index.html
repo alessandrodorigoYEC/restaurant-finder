@@ -400,10 +400,21 @@
 
                     const request = {
                         location: center,
-                        radius: '500',
+                        radius: 500,
                         type: ['restaurant']
                     };
-                    service.nearbySearch(request, (results, status) => callback(results, status, priceOrder));
+                    try {
+                        service.nearbySearch(request, (results, status) => {
+                            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                                callback(results, status, priceOrder);
+                            } else {
+                                console.error('Nearby search failed:', status);
+                                alert('Nearby search failed: ' + status);
+                            }
+                        });
+                    } catch (err) {
+                        console.error('Error performing nearby search:', err);
+                    }
                 } else {
                     alert("Geocode was not successful for the following reason: " + status);
                 }
